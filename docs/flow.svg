@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="260" viewBox="0 0 980 260" role="img">
+  <title>Azure Release Lab flow</title>
+  <desc>PR smoke, then staging deploy, then production approval, then nightly smoke or rollback.</desc>
+  <rect width="980" height="260" fill="#0f172a" rx="16"/>
+
+  <text x="122" y="34" fill="#94a3b8" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" text-anchor="middle">1. PR smoke</text>
+  <text x="368" y="34" fill="#94a3b8" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" text-anchor="middle">2. Staging</text>
+  <text x="614" y="34" fill="#94a3b8" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" text-anchor="middle">3. Production</text>
+  <text x="852" y="34" fill="#94a3b8" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" text-anchor="middle">4. Nightly / rollback</text>
+
+  <rect x="42" y="64" width="160" height="48" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="2"/>
+  <text x="122" y="94" fill="#0f172a" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="700" text-anchor="middle">GitHub PR</text>
+  <rect x="42" y="128" width="160" height="48" rx="12" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+  <text x="122" y="158" fill="#0f172a" font-family="ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Playwright</text>
+
+  <path d="M202 88 C230 88, 250 110, 278 118" fill="none" stroke="#94a3b8" stroke-width="2.5"/>
+  <path d="M202 152 C230 152, 250 130, 278 124" fill="none" stroke="#94a3b8" stroke-width="2.5"/>
+  <polygon points="278,121 266,115 266,127" fill="#94a3b8"/>
+
+  <rect x="288" y="70" width="160" height="44" rx="12" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="368" y="98" fill="#0f172a" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Green main</text>
+  <rect x="288" y="128" width="160" height="44" rx="12" fill="#fde68a" stroke="#d97706" stroke-width="2"/>
+  <text x="368" y="156" fill="#0f172a" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Auto staging</text>
+
+  <line x1="448" y1="122" x2="524" y2="122" stroke="#94a3b8" stroke-width="2.5"/>
+  <polygon points="524,122 512,116 512,128" fill="#94a3b8"/>
+
+  <rect x="534" y="70" width="160" height="44" rx="12" fill="#ccfbf1" stroke="#0d9488" stroke-width="2"/>
+  <text x="614" y="98" fill="#0f172a" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Human approval</text>
+  <rect x="534" y="128" width="160" height="44" rx="12" fill="#d1fae5" stroke="#059669" stroke-width="2"/>
+  <text x="614" y="156" fill="#0f172a" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Prod deploy</text>
+
+  <line x1="694" y1="122" x2="762" y2="122" stroke="#94a3b8" stroke-width="2.5"/>
+  <polygon points="762,122 750,116 750,128" fill="#94a3b8"/>
+
+  <rect x="772" y="70" width="160" height="44" rx="12" fill="#f4f6fb" stroke="#64748b" stroke-width="2"/>
+  <text x="852" y="98" fill="#0f172a" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Nightly smoke</text>
+  <rect x="772" y="128" width="160" height="44" rx="12" fill="#ffe4e6" stroke="#e11d48" stroke-width="2"/>
+  <text x="852" y="156" fill="#0f172a" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" text-anchor="middle">Rerun last good</text>
+
+  <text x="122" y="230" fill="#64748b" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" text-anchor="middle">No deploy</text>
+  <text x="368" y="230" fill="#64748b" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" text-anchor="middle">Preview site</text>
+  <text x="614" y="230" fill="#64748b" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" text-anchor="middle">Azure pauses</text>
+  <text x="852" y="230" fill="#64748b" font-family="ui-sans-serif, system-ui, sans-serif" font-size="13" text-anchor="middle">Smoke or restore</text>
+</svg>

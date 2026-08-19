@@ -1,0 +1,181 @@
+# Azure Release Lab — pipeline
+# PR / nightly: build + Playwright only.
+# main (CI): staging deploy, then production after Azure environment approval.
+# Secrets (never commit): VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID
+# Setup: docs/AZURE_SETUP.md
+
+parameters:
+  - name: forceSmokeFail
+    displayName: Simulate a smoke failure (blocks deploy)
+    type: boolean
+    default: false
+
+trigger:
+  branches:
+    include:
+      - main
+
+pr:
+  branches:
+    include:
+      - main
+
+schedules:
+  - cron: '0 7 * * *'
+    displayName: Nightly smoke
+    always: true
+    branches:
+      include:
+        - main
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  projectDir: .
+
+stages:
+  - stage: verify
+    displayName: Build and smoke
+    jobs:
+      - job: smoke
+        displayName: Install, build, smoke
+        steps:
+          - task: UseNode@1
+            inputs:
+              version: '20.x'
+            displayName: Use Node 20
+
+          - script: npm ci
+            workingDirectory: $(projectDir)
+            displayName: Install dependencies
+
+          - script: npm run build
+            workingDirectory: $(projectDir)
+            displayName: Build production bundle
+
+          - script: npx playwright install --with-deps chromium
+            workingDirectory: $(projectDir)
+            displayName: Install Playwright Chromium
+
+          - script: |
+              set -e
+              if [ "${{ parameters.forceSmokeFail }}" = "True" ]; then
+                echo "##vso[task.logissue type=error]forceSmokeFail=true — simulating a smoke failure. Staging and production should be skipped."
+                exit 1
+              fi
+              npm run test:smoke
+            workingDirectory: $(projectDir)
+            displayName: Run lean smoke suite
+            env:
+              CI: 'true'
+
+          - task: PublishTestResults@2
+            displayName: Publish Playwright results
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: JUnit
+              testResultsFiles: '$(projectDir)/test-results/junit.xml'
+              testRunTitle: Playwright smoke
+              mergeTestResults: true
+              failTaskOnFailedTests: false
+
+          - task: PublishBuildArtifacts@1
+            displayName: Publish dist artifact
+            condition: succeededOrFailed()
+            inputs:
+              PathtoPublish: $(projectDir)/dist
+              ArtifactName: web-dist
+              publishLocation: Container
+
+  - stage: deploy_staging
+    displayName: Deploy staging
+    dependsOn: verify
+    condition: |
+      and(
+        succeeded(),
+        eq(variables['Build.SourceBranch'], 'refs/heads/main'),
+        ne(variables['Build.Reason'], 'Schedule'),
+        ne(variables['Build.Reason'], 'PullRequest')
+      )
+    jobs:
+      - deployment: staging
+        displayName: Vercel preview (staging)
+        environment: staging
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - download: none
+                - task: UseNode@1
+                  inputs:
+                    version: '20.x'
+                  displayName: Use Node 20
+                - script: npm ci
+                  workingDirectory: $(projectDir)
+                  displayName: Install dependencies
+                - script: npx vercel pull --yes --environment=preview --token=$(VERCEL_TOKEN)
+                  workingDirectory: $(projectDir)
+                  displayName: Pull Vercel preview config
+                  env:
+                    VERCEL_ORG_ID: $(VERCEL_ORG_ID)
+                    VERCEL_PROJECT_ID: $(VERCEL_PROJECT_ID)
+                - script: npx vercel build --token=$(VERCEL_TOKEN)
+                  workingDirectory: $(projectDir)
+                  displayName: Vercel preview build
+                  env:
+                    VERCEL_ORG_ID: $(VERCEL_ORG_ID)
+                    VERCEL_PROJECT_ID: $(VERCEL_PROJECT_ID)
+                - script: npx vercel deploy --prebuilt --token=$(VERCEL_TOKEN)
+                  workingDirectory: $(projectDir)
+                  displayName: Deploy staging preview
+                  env:
+                    VERCEL_ORG_ID: $(VERCEL_ORG_ID)
+                    VERCEL_PROJECT_ID: $(VERCEL_PROJECT_ID)
+
+  - stage: deploy_production
+    displayName: Deploy production
+    dependsOn: deploy_staging
+    condition: |
+      and(
+        succeeded(),
+        eq(variables['Build.SourceBranch'], 'refs/heads/main'),
+        ne(variables['Build.Reason'], 'Schedule'),
+        ne(variables['Build.Reason'], 'PullRequest')
+      )
+    jobs:
+      - deployment: production
+        displayName: Vercel production
+        environment: production
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - download: none
+                - task: UseNode@1
+                  inputs:
+                    version: '20.x'
+                  displayName: Use Node 20
+                - script: npm ci
+                  workingDirectory: $(projectDir)
+                  displayName: Install dependencies
+                - script: npx vercel pull --yes --environment=production --token=$(VERCEL_TOKEN)
+                  workingDirectory: $(projectDir)
+                  displayName: Pull Vercel production config
+                  env:
+                    VERCEL_ORG_ID: $(VERCEL_ORG_ID)
+                    VERCEL_PROJECT_ID: $(VERCEL_PROJECT_ID)
+                - script: npx vercel build --prod --token=$(VERCEL_TOKEN)
+                  workingDirectory: $(projectDir)
+                  displayName: Vercel production build
+                  env:
+                    VERCEL_ORG_ID: $(VERCEL_ORG_ID)
+                    VERCEL_PROJECT_ID: $(VERCEL_PROJECT_ID)
+                - script: npx vercel deploy --prebuilt --prod --token=$(VERCEL_TOKEN)
+                  workingDirectory: $(projectDir)
+                  displayName: Deploy production
+                  env:
+                    VERCEL_ORG_ID: $(VERCEL_ORG_ID)
+                    VERCEL_PROJECT_ID: $(VERCEL_PROJECT_ID)
