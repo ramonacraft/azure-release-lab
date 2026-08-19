@@ -140,6 +140,7 @@ Redeploy so the API picks up the vars. The Recent runs badge should say **Live A
 | Production never pauses | Add an Approvals check on the `production` environment |
 | Tests tab is empty | Confirm `test-results/junit.xml` exists after smoke (CI reporter writes it) |
 | Vercel auth error | Re-check secret names: `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` |
+| `Could not retrieve Project Settings` | The pipeline must write `.vercel/project.json` before `vercel pull`. That file is gitignored on purpose. |
 | Chip still says Local on a live URL | Staging must use preview build; production must use `--prod` |
 
 ---
