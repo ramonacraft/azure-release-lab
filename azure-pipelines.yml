@@ -122,21 +122,7 @@ stages:
                     VERCEL_TOKEN: $(VERCEL_TOKEN)
                     VERCEL_ORG_ID: $(VERCEL_ORG_ID)
                     VERCEL_PROJECT_ID: $(VERCEL_PROJECT_ID)
-                - script: npx vercel pull --yes --environment=preview --token=$(VERCEL_TOKEN)
-                  workingDirectory: $(projectDir)
-                  displayName: Pull Vercel preview config
-                  env:
-                    VERCEL_TOKEN: $(VERCEL_TOKEN)
-                    VERCEL_ORG_ID: $(VERCEL_ORG_ID)
-                    VERCEL_PROJECT_ID: $(VERCEL_PROJECT_ID)
-                - script: npx vercel build --token=$(VERCEL_TOKEN)
-                  workingDirectory: $(projectDir)
-                  displayName: Vercel preview build
-                  env:
-                    VERCEL_TOKEN: $(VERCEL_TOKEN)
-                    VERCEL_ORG_ID: $(VERCEL_ORG_ID)
-                    VERCEL_PROJECT_ID: $(VERCEL_PROJECT_ID)
-                - script: npx vercel deploy --prebuilt --token=$(VERCEL_TOKEN)
+                - script: npx vercel deploy --yes --scope "$VERCEL_ORG_ID" --token "$VERCEL_TOKEN"
                   workingDirectory: $(projectDir)
                   displayName: Deploy staging preview
                   env:
@@ -178,21 +164,7 @@ stages:
                     VERCEL_TOKEN: $(VERCEL_TOKEN)
                     VERCEL_ORG_ID: $(VERCEL_ORG_ID)
                     VERCEL_PROJECT_ID: $(VERCEL_PROJECT_ID)
-                - script: npx vercel pull --yes --environment=production --token=$(VERCEL_TOKEN)
-                  workingDirectory: $(projectDir)
-                  displayName: Pull Vercel production config
-                  env:
-                    VERCEL_TOKEN: $(VERCEL_TOKEN)
-                    VERCEL_ORG_ID: $(VERCEL_ORG_ID)
-                    VERCEL_PROJECT_ID: $(VERCEL_PROJECT_ID)
-                - script: npx vercel build --prod --token=$(VERCEL_TOKEN)
-                  workingDirectory: $(projectDir)
-                  displayName: Vercel production build
-                  env:
-                    VERCEL_TOKEN: $(VERCEL_TOKEN)
-                    VERCEL_ORG_ID: $(VERCEL_ORG_ID)
-                    VERCEL_PROJECT_ID: $(VERCEL_PROJECT_ID)
-                - script: npx vercel deploy --prebuilt --prod --token=$(VERCEL_TOKEN)
+                - script: npx vercel deploy --yes --prod --scope "$VERCEL_ORG_ID" --token "$VERCEL_TOKEN"
                   workingDirectory: $(projectDir)
                   displayName: Deploy production
                   env:
